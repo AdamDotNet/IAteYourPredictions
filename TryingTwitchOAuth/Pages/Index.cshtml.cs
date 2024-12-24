@@ -93,6 +93,7 @@ namespace TryingTwitchOAuth.Pages
 				TwitchDisplayName = User.GetDisplayName()
 			};
 
+			_logger.LogInformation("Entry made for {PredictionId} with option {OptionId} by user {User}.", PredictionId, OptionId, User.GetIdentifier());
 			_dbContext.PredictionEntries.Add(entry);
 			await _dbContext.SaveChangesAsync();
 

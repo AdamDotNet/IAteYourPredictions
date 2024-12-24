@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using TryingTwitchOAuth.Data;
+using TryingTwitchOAuth.Extensions;
 using TryingTwitchOAuth.Services;
 
 namespace TryingTwitchOAuth.Pages
@@ -11,11 +12,13 @@ namespace TryingTwitchOAuth.Pages
     {
         private readonly PredictionsDbContext _dbContext;
 		private readonly UserService _userService;
+		private readonly ILogger<AuthorModel> _logger;
 
-		public AuthorModel(PredictionsDbContext dbContext, UserService userService)
+		public AuthorModel(PredictionsDbContext dbContext, UserService userService, ILogger<AuthorModel> logger)
         {
             _dbContext = dbContext;
 			_userService = userService;
+			_logger = logger;
 		}
 
         public override void OnPageHandlerExecuting(PageHandlerExecutingContext context)
@@ -74,6 +77,7 @@ namespace TryingTwitchOAuth.Pages
 				return RedirectToPage("./Author");
 			}
 
+            _logger.LogInformation("Deleting prediction {PredictionId} by user {User}.", id, User.GetIdentifier());
 			_dbContext.Remove(prediction);
 			await _dbContext.SaveChangesAsync();
 			TempData["Style"] = "alert-success";
@@ -93,6 +97,8 @@ namespace TryingTwitchOAuth.Pages
 
             prediction.EntriesAreOpen = false;
             prediction.ModifiedAt = DateTime.UtcNow;
+
+			_logger.LogInformation("Closing entries for prediction {PredictionId} by user {User}.", id, User.GetIdentifier());
 			await _dbContext.SaveChangesAsync();
             TempData["Style"] = "alert-success";
             TempData["Message"] = "Prediction entry has been closed.";
@@ -111,6 +117,8 @@ namespace TryingTwitchOAuth.Pages
 
             prediction.EntriesAreOpen = true;
 			prediction.ModifiedAt = DateTime.UtcNow;
+
+			_logger.LogInformation("Opening entries for prediction {PredictionId} by user {User}.", id, User.GetIdentifier());
 			await _dbContext.SaveChangesAsync();
             TempData["Style"] = "alert-success";
             TempData["Message"] = "Prediction entry has been opened.";
@@ -139,6 +147,8 @@ namespace TryingTwitchOAuth.Pages
             {
                 try
                 {
+					_logger.LogInformation("Declaring prediction {PredictionId} winner as {OptionId} by user {User}.", id, WinnerOptionId, User.GetIdentifier());
+
 					winningOption.IsWinner = true;
 					prediction.IsOpen = false;
                     prediction.EntriesAreOpen = false;
@@ -183,7 +193,8 @@ namespace TryingTwitchOAuth.Pages
                 Prediction.IsOpen = true;
                 _dbContext.Predictions.Add(Prediction);
 
-                await _dbContext.SaveChangesAsync();
+				_logger.LogInformation("Created prediction {PredictionId} by user {User}.", Prediction.Id, User.GetIdentifier());
+				await _dbContext.SaveChangesAsync();
 				TempData["Style"] = "alert-success";
 				TempData["Message"] = "Prediction saved successfully.";
 				return RedirectToPage("./Author", new { Prediction.Id });
@@ -215,7 +226,8 @@ namespace TryingTwitchOAuth.Pages
                     existing.Options.RemoveAt(existing.Options.Count - 1);
                 }
 
-                await _dbContext.SaveChangesAsync();
+				_logger.LogInformation("Updated prediction {PredictionId} by user {User}.", existing.Id, User.GetIdentifier());
+				await _dbContext.SaveChangesAsync();
                 TempData["Style"] = "alert-success";
                 TempData["Message"] = "Prediction saved successfully.";
                 return RedirectToPage("./Author", new { existing.Id });
