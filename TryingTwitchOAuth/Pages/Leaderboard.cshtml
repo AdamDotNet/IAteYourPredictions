@@ -1,0 +1,44 @@
+﻿@page
+@model TryingTwitchOAuth.Pages.LeaderboardModel
+@{
+	ViewData["Title"] = "Leaderboard";
+}
+
+<div class="container my-5">
+	<div class="table-responsive">
+		<table class="table table-striped table-hover">
+			<thead>
+				<tr>
+					<th class="mw-25">Points</th>
+					<th>Twitch Display Name</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var entry in Model.LeaderboardEntries)
+				{
+					<tr>
+						<td>@entry.Count</td>
+						<td>
+							<a class="link-primary" href="/Stats/@entry.TwitchUid" data-twitch-uid="@entry.TwitchUid" data-twitch-username="@entry.TwitchUserName">@entry.TwitchDisplayName</a>
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+
+	<div class="d-flex align-items-center">
+		<form method="get" class="mx-2">
+			<input type="hidden" asp-for="Skip" value="@(Model.Skip - Model.Take < 0 ? 0 : Model.Skip - Model.Take)" />
+			<input type="hidden" asp-for="Take" />
+			<input type="hidden" asp-for="OrderBy" />
+			<button class="btn btn-secondary" type="submit" @(Model.Skip == 0 ? "disabled" : "")>Previous</button>
+		</form>
+		<form method="get" class="mx-2">
+			<input type="hidden" asp-for="Skip" value="@(Model.Skip + Model.Take)" />
+			<input type="hidden" asp-for="Take" />
+			<input type="hidden" asp-for="OrderBy" />
+			<button class="btn btn-primary" type="submit" @(Model.HasMore == false ? "disabled" : "")>Next</button>
+		</form>
+	</div>
+</div>

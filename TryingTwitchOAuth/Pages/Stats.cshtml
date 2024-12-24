@@ -1,0 +1,31 @@
+﻿@page "{twitchUid?}"
+@model TryingTwitchOAuth.Pages.StatsModel
+@{
+	ViewData["Title"] = "Stats";
+}
+
+<div class="container mt-5">
+	<div class="row">
+		<div class="col-md-8 offset-md-2">
+			<div class="card">
+				<div class="card-header">
+					<span data-twitch-uid="@Model.TwitchUid" data-twitch-username="@Model.TwitchUserName">@Model.TwitchDisplayName</span>
+				</div>
+				<div class="card-body">
+					<div class="form-group">
+						<label class="mb-1">Total Predictions (<a class="link-primary" href="/List?TwitchUid=@User.GetIdentifier()&ResultFilter=Any">View</a>)</label>
+						<input class="form-control" value="@Model.TotalPredictions" disabled />
+					</div>
+					<div class="form-group mt-3">
+						<label class="mb-1">Won Predictions (<a class="link-primary" href="/List?TwitchUid=@User.GetIdentifier()&ResultFilter=Won">View</a>)</label>
+						<input class="form-control" value="@Model.WonPredictions" disabled />
+					</div>
+					<div class="form-group mt-3">
+						<label class="mb-1">Lost Predictions (<a class="link-primary" href="/List?TwitchUid=@User.GetIdentifier()&ResultFilter=Lost">View</a>)</label>
+						<input class="form-control" value="@Model.LostPredictions" disabled />
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
